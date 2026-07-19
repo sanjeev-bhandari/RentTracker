@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,6 +36,8 @@ import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -110,134 +113,176 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             SettingsSectionHeader(stringResource(R.string.section_preferences))
-
-            val notifMsg = stringResource(R.string.msg_notifications_enabled)
-            SettingsRow(
-                icon = Icons.Default.Notifications,
-                title = stringResource(R.string.row_notification),
-                subtitle = "Manage notification settings",
-                onClick = {
-                    Toast.makeText(context, notifMsg, Toast.LENGTH_SHORT).show()
-                }
-            )
-
-            SettingsRow(
-                icon = Icons.Default.DarkMode,
-                title = stringResource(R.string.row_dark_mode),
-                subtitle = if (isDarkMode) "Enabled" else "Disabled",
-                trailing = {
-                    Switch(
-                        checked = isDarkMode,
-                        onCheckedChange = { onToggleDarkMode() }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(16.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Column {
+                    val notifMsg = stringResource(R.string.msg_notifications_enabled)
+                    SettingsRow(
+                        icon = Icons.Default.Notifications,
+                        title = stringResource(R.string.row_notification),
+                        subtitle = "Manage notification settings",
+                        onClick = {
+                            Toast.makeText(context, notifMsg, Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                    SettingsRow(
+                        icon = Icons.Default.DarkMode,
+                        title = stringResource(R.string.row_dark_mode),
+                        subtitle = if (isDarkMode) "Enabled" else "Disabled",
+                        trailing = {
+                            Switch(
+                                checked = isDarkMode,
+                                onCheckedChange = { onToggleDarkMode() }
+                            )
+                        }
                     )
                 }
-            )
-
-            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+            }
 
             SettingsSectionHeader(stringResource(R.string.section_format))
-
-            SettingsRow(
-                icon = Icons.Default.Payments,
-                title = stringResource(R.string.row_currency),
-                subtitle = preferences.currencySymbol.trim(),
-                onClick = { showCurrencyDialog = true }
-            )
-
-            SettingsRow(
-                icon = Icons.Default.Pin,
-                title = stringResource(R.string.row_numeral),
-                subtitle = when (preferences.numeralPreference) {
-                    1 -> stringResource(R.string.numeral_english)
-                    2 -> stringResource(R.string.numeral_nepali)
-                    else -> stringResource(R.string.numeral_auto)
-                },
-                onClick = { showNumeralDialog = true }
-            )
-
-            SettingsRow(
-                icon = Icons.Default.Language,
-                title = stringResource(R.string.row_language),
-                subtitle = "Tap to switch",
-                onClick = { onToggleLanguage() }
-            )
-
-            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(16.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Column {
+                    SettingsRow(
+                        icon = Icons.Default.Payments,
+                        title = stringResource(R.string.row_currency),
+                        subtitle = preferences.currencySymbol.trim(),
+                        onClick = { showCurrencyDialog = true }
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                    SettingsRow(
+                        icon = Icons.Default.Pin,
+                        title = stringResource(R.string.row_numeral),
+                        subtitle = when (preferences.numeralPreference) {
+                            1 -> stringResource(R.string.numeral_english)
+                            2 -> stringResource(R.string.numeral_nepali)
+                            else -> stringResource(R.string.numeral_auto)
+                        },
+                        onClick = { showNumeralDialog = true }
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                    SettingsRow(
+                        icon = Icons.Default.Language,
+                        title = stringResource(R.string.row_language),
+                        subtitle = "Tap to switch",
+                        onClick = { onToggleLanguage() }
+                    )
+                }
+            }
 
             SettingsSectionHeader(stringResource(R.string.section_defaults))
-
-            SettingsRow(
-                icon = Icons.Default.ElectricBolt,
-                title = stringResource(R.string.row_rate),
-                subtitle = "${preferences.defaultElectricityRate}",
-                onClick = { showRateDialog = true }
-            )
-
-            SettingsRow(
-                icon = Icons.Default.CalendarMonth,
-                title = stringResource(R.string.row_due_day),
-                subtitle = Formatting.ordinalSuffixLocalized(preferences.defaultDueDay, useNepali),
-                onClick = { showDueDayDialog = true }
-            )
-
-            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(16.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Column {
+                    SettingsRow(
+                        icon = Icons.Default.ElectricBolt,
+                        title = stringResource(R.string.row_rate),
+                        subtitle = "${preferences.defaultElectricityRate}",
+                        onClick = { showRateDialog = true }
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                    SettingsRow(
+                        icon = Icons.Default.CalendarMonth,
+                        title = stringResource(R.string.row_due_day),
+                        subtitle = Formatting.ordinalSuffixLocalized(preferences.defaultDueDay, useNepali),
+                        onClick = { showDueDayDialog = true }
+                    )
+                }
+            }
 
             SettingsSectionHeader(stringResource(R.string.section_more))
-
-            val shareText = stringResource(R.string.share_message)
-            SettingsRow(
-                icon = Icons.Default.Share,
-                title = stringResource(R.string.row_share),
-                subtitle = "Tell your friends",
-                onClick = {
-                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                        type = "text/plain"
-                        putExtra(Intent.EXTRA_SUBJECT, "RentTracker")
-                        putExtra(Intent.EXTRA_TEXT, shareText)
-                    }
-                    context.startActivity(Intent.createChooser(shareIntent, "Share"))
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(16.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Column {
+                    val shareText = stringResource(R.string.share_message)
+                    SettingsRow(
+                        icon = Icons.Default.Share,
+                        title = stringResource(R.string.row_share),
+                        subtitle = "Tell your friends",
+                        onClick = {
+                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_SUBJECT, "RentTracker")
+                                putExtra(Intent.EXTRA_TEXT, shareText)
+                            }
+                            context.startActivity(Intent.createChooser(shareIntent, "Share"))
+                        }
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                    val privacyText = stringResource(R.string.privacy_policy_text)
+                    SettingsRow(
+                        icon = Icons.Default.Shield,
+                        title = stringResource(R.string.row_privacy),
+                        subtitle = "How we handle your data",
+                        onClick = {
+                            Toast.makeText(context, privacyText, Toast.LENGTH_LONG).show()
+                        }
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                    val noAppText = stringResource(R.string.msg_no_app_found)
+                    SettingsRow(
+                        icon = Icons.Default.Email,
+                        title = stringResource(R.string.row_contact),
+                        subtitle = "Get help or give feedback",
+                        onClick = {
+                            val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                data = Uri.parse("mailto:support@renttracker.app")
+                                putExtra(Intent.EXTRA_SUBJECT, "RentTracker Support")
+                            }
+                            try {
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                Toast.makeText(context, noAppText, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    )
                 }
-            )
+            }
 
-            val privacyText = stringResource(R.string.privacy_policy_text)
-            SettingsRow(
-                icon = Icons.Default.Shield,
-                title = stringResource(R.string.row_privacy),
-                subtitle = "How we handle your data",
-                onClick = {
-                    Toast.makeText(context, privacyText, Toast.LENGTH_LONG).show()
-                }
-            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(16.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.2f)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                SettingsRow(
+                    icon = Icons.AutoMirrored.Filled.ExitToApp,
+                    title = stringResource(R.string.row_clear_data),
+                    subtitle = "Remove all tenants and reset settings",
+                    iconTint = MaterialTheme.colorScheme.error,
+                    onClick = { showClearDataDialog = true }
+                )
+            }
 
-            val noAppText = stringResource(R.string.msg_no_app_found)
-            SettingsRow(
-                icon = Icons.Default.Email,
-                title = stringResource(R.string.row_contact),
-                subtitle = "Get help or give feedback",
-                onClick = {
-                    val intent = Intent(Intent.ACTION_SENDTO).apply {
-                        data = Uri.parse("mailto:support@renttracker.app")
-                        putExtra(Intent.EXTRA_SUBJECT, "RentTracker Support")
-                    }
-                    try {
-                        context.startActivity(intent)
-                    } catch (e: Exception) {
-                        Toast.makeText(context, noAppText, Toast.LENGTH_SHORT).show()
-                    }
-                }
-            )
-
-            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-
-            SettingsRow(
-                icon = Icons.AutoMirrored.Filled.ExitToApp,
-                title = stringResource(R.string.row_clear_data),
-                subtitle = "Remove all tenants and reset settings",
-                iconTint = MaterialTheme.colorScheme.error,
-                onClick = { showClearDataDialog = true }
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(96.dp))
         }
     }
 
@@ -345,7 +390,7 @@ private fun SettingsSectionHeader(title: String) {
     Text(
         text = title,
         style = MaterialTheme.typography.labelLarge,
-        color = Blue40,
+        color = MaterialTheme.colorScheme.primary,
         modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp),
         fontWeight = FontWeight.Bold
     )

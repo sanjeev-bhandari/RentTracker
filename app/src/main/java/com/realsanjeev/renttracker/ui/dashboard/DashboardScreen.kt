@@ -1,6 +1,7 @@
 package com.realsanjeev.renttracker.ui.dashboard
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,7 +28,9 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Payments
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -76,6 +80,7 @@ fun DashboardScreen(
     onRecordPayment: () -> Unit,
     onSendReminder: () -> Unit,
     onDeleteTenant: (Tenant) -> Unit,
+    onSeeAllClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val currentLanguage = LocalContext.current.resources.configuration.locales[0].language
@@ -90,9 +95,9 @@ fun DashboardScreen(
             TopAppBar(
                 title = { Text(stringResource(R.string.app_name)) },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Blue40,
-                    titleContentColor = Color.White,
-                    actionIconContentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground,
+                    actionIconContentColor = MaterialTheme.colorScheme.onBackground
                 ),
                 actions = {
                     IconButton(onClick = onLanguageToggle) {
@@ -142,23 +147,29 @@ fun DashboardScreen(
                         Text(
                             text = stringResource(R.string.see_all),
                             style = MaterialTheme.typography.labelLarge,
-                            color = Blue40,
-                            modifier = Modifier.clickable { }
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.clickable { onSeeAllClick() }
                         )
                     }
                 }
 
-                items(
-                    items = uiState.tenants,
-                    key = { it.id }
-                ) { tenant ->
-                    TenantCard(
-                        tenant = tenant,
-                        preferences = uiState.preferences,
-                        useNepali = useNepali,
-                        onClick = { onEditTenant(tenant) },
-                        onLongClick = { onDeleteTenant(tenant) }
-                    )
+                if (uiState.tenants.isEmpty()) {
+                    item {
+                        DashboardEmptyState(onAddTenant = onAddTenant)
+                    }
+                } else {
+                    items(
+                        items = uiState.tenants,
+                        key = { it.id }
+                    ) { tenant ->
+                        TenantCard(
+                            tenant = tenant,
+                            preferences = uiState.preferences,
+                            useNepali = useNepali,
+                            onClick = { onEditTenant(tenant) },
+                            onLongClick = { onDeleteTenant(tenant) }
+                        )
+                    }
                 }
 
                 item { Spacer(modifier = Modifier.height(80.dp)) }
@@ -196,95 +207,114 @@ private fun SummaryCard(uiState: DashboardUiState, useNepali: Boolean) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Blue40),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            Text(
-                text = stringResource(R.string.total_revenue),
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White.copy(alpha = 0.8f)
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = Formatting.formatAmountLocalized(
-                    summary.totalRevenue,
-                    uiState.preferences.currencySymbol,
-                    useNepali
-                ),
-                style = MaterialTheme.typography.headlineLarge,
-                color = Color.White
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            LinearProgressIndicator(
-                progress = { summary.progressPercent / 100f },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(8.dp)
-                    .clip(RoundedCornerShape(4.dp)),
-                color = Color.White.copy(alpha = 0.9f),
-                trackColor = Color.White.copy(alpha = 0.2f)
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(8.dp)
-                                .clip(CircleShape)
-                                .background(Color.White.copy(alpha = 0.9f))
+        Box(
+            modifier = Modifier
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            Blue40,
+                            Color(0xFF3B82F6)
                         )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = stringResource(R.string.collected),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color.White.copy(alpha = 0.7f)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = Formatting.formatAmountLocalized(summary.collected, uiState.preferences.currencySymbol, useNepali),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color.White
                     )
-                    Text(
-                        text = "${if (useNepali) convertToNepaliDigitsStr("${summary.progressPercent}") else summary.progressPercent}%",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.White.copy(alpha = 0.7f)
+                )
+                .fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                Text(
+                    text = stringResource(R.string.total_revenue),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White.copy(alpha = 0.8f)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = Formatting.formatAmountLocalized(
+                        summary.totalRevenue,
+                        uiState.preferences.currencySymbol,
+                        useNepali
+                    ),
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(Color.White.copy(alpha = 0.2f))
+                ) {
+                    val progressValue = (summary.progressPercent / 100f).coerceIn(0f, 1f)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(progressValue)
+                            .fillMaxHeight()
+                            .background(Color.White.copy(alpha = 0.9f))
                     )
                 }
-                Column(horizontalAlignment = Alignment.End) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(8.dp)
-                                .clip(CircleShape)
-                                .background(Color.White.copy(alpha = 0.4f))
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.White.copy(alpha = 0.9f))
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = stringResource(R.string.collected),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.White.copy(alpha = 0.7f)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = stringResource(R.string.pending),
+                            text = Formatting.formatAmountLocalized(summary.collected, uiState.preferences.currencySymbol, useNepali),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White
+                        )
+                        Text(
+                            text = "${if (useNepali) convertToNepaliDigitsStr("${summary.progressPercent}") else summary.progressPercent}%",
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.White.copy(alpha = 0.7f)
                         )
                     }
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = Formatting.formatAmountLocalized(summary.pending, uiState.preferences.currencySymbol, useNepali),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color.White
-                    )
-                    Text(
-                        text = "${if (useNepali) convertToNepaliDigitsStr("${100 - summary.progressPercent}") else (100 - summary.progressPercent)}%",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.White.copy(alpha = 0.7f)
-                    )
+                    Column(horizontalAlignment = Alignment.End) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.White.copy(alpha = 0.4f))
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = stringResource(R.string.pending),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.White.copy(alpha = 0.7f)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = Formatting.formatAmountLocalized(summary.pending, uiState.preferences.currencySymbol, useNepali),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White
+                        )
+                        Text(
+                            text = "${if (useNepali) convertToNepaliDigitsStr("${100 - summary.progressPercent}") else (100 - summary.progressPercent)}%",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White.copy(alpha = 0.7f)
+                        )
+                    }
                 }
             }
         }
@@ -304,7 +334,7 @@ private fun ActionChips(
         ActionChipItem(
             icon = Icons.Default.Add,
             label = stringResource(R.string.action_add_tenant),
-            containerColor = Blue40,
+            containerColor = Blue50,
             onClick = onAddTenant,
             modifier = Modifier.weight(1f)
         )
@@ -333,40 +363,103 @@ private fun ActionChipItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    FilterChip(
-        selected = true,
+    Card(
         onClick = onClick,
-        label = {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(vertical = 8.dp)
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.08f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp, horizontal = 4.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(containerColor.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    icon,
+                    imageVector = icon,
                     contentDescription = label,
                     tint = containerColor,
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurface
+                    modifier = Modifier.size(20.dp)
                 )
             }
-        },
-        modifier = modifier.fillMaxWidth(),
-        colors = androidx.compose.material3.FilterChipDefaults.filterChipColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            selectedContainerColor = MaterialTheme.colorScheme.surfaceVariant
-        ),
-        shape = RoundedCornerShape(12.dp)
-    )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+private fun DashboardEmptyState(onAddTenant: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.12f))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.People,
+                contentDescription = null,
+                modifier = Modifier.size(48.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "No Tenants Added",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Add your first tenant to start tracking revenue.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = onAddTenant,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Add Tenant")
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun TenantCard(
+internal fun TenantCard(
     tenant: Tenant,
     preferences: UserPreferences,
     useNepali: Boolean,
