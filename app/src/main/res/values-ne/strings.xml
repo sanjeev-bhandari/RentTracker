@@ -36,4 +36,36 @@
     <string name="share_message">रेन्ट ट्र्याकर — नि:शुल्क घरधनी ड्यासबोर्ड एप। भाडा र बहालवाला व्यवस्थापन गर्नुहोस्!</string>
     <string name="privacy_policy_text">तपाईंको सबै डाटा उपकरणमा सुरक्षित रूपमा भण्डारण गरिन्छ। कुनै पनि डाटा संकलन, साझेदारी, वा इन्टरनेट मार्फत प्रसारण गरिँदैन। रेन्ट ट्र्याकर पूर्ण रूपमा अफलाइन एप हो।</string>
     <string name="msg_no_app_found">यो कार्यको लागि कुनै एप फेला परेन।</string>
+
+    <string name="title_add_tenant">बहालवाला थप्नुहोस्</string>
+    <string name="title_edit_tenant">बहालवाला सम्पादन गर्नुहोस्</string>
+    <string name="section_preferences">प्राथमिकताहरू</string>
+    <string name="section_format">ढाँचा</string>
+    <string name="section_defaults">पूर्वनिर्धारित मानहरू</string>
+    <string name="section_more">थप</string>
+    <string name="label_tenant_name">बहालवालाको नाम</string>
+    <string name="label_property">घर/कोठा</string>
+    <string name="label_monthly_rent">मासिक भाडा</string>
+    <string name="label_payment_date">भुक्तानी मिति</string>
+    <string name="label_last_reading">अन्तिम रिडिङ</string>
+    <string name="label_current_reading">हालको रिडिङ</string>
+    <string name="label_rate_per_unit">प्रति युनिट दर</string>
+    <string name="label_status">अवस्था</string>
+    <string name="btn_update">अद्यावधिक गर्नुहोस्</string>
+    <string name="btn_clear">मेटाउनुहोस्</string>
+    <string name="total_revenue">कुल राजस्व</string>
+    <string name="collected">संकलन भएको</string>
+    <string name="pending">बाँकी रहेको</string>
+    <string name="action_add_tenant">बहालवाला थप्नुहोस्</string>
+    <string name="action_record">रेकर्ड</string>
+    <string name="action_remind">रिमाइन्डर</string>
+    <string name="numeral_auto">स्वत: (भाषा अनुसार)</string>
+    <string name="numeral_english">अंग्रेजी (0-9)</string>
+    <string name="numeral_nepali">नेपाली (०-९)</string>
+    <string name="rent_due_day_format">प्रत्येक महिनाको %1$s गते भाडा बुझाउने दिन हो</string>
+    <string name="due_day_option_format">महिनाको %1$s गते</string>
+    <string name="units_format">%1$s युनिट</string>
+    <string name="msg_clear_data_confirm">यसले सबै बहालवालाहरू हटाउनेछ र सेटिङहरू रिसेट गर्नेछ। यो कार्य उल्टाउन सकिँदैन।</string>
+    <string name="msg_notifications_enabled">सूचनाहरू सक्रिय गरियो</string>
+    <string name="msg_record_payment_hint">भुक्तानी रेकर्ड गर्नको लागि सूचीबाट बहालवाला चयन गर्नुहोस्</string>
 </resources>

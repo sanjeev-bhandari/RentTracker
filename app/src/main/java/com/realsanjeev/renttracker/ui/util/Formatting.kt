@@ -30,8 +30,7 @@ object Formatting {
     }
 
     fun ordinalSuffixLocalized(day: Int, useNepaliNumerals: Boolean): String {
-        val suffix = ordinalSuffix(day)
-        return if (useNepaliNumerals) convertToNepaliDigits(suffix) else suffix
+        return if (useNepaliNumerals) convertToNepaliDigits(day.toString()) else ordinalSuffix(day)
     }
 
     private fun convertToNepaliDigits(input: String): String {

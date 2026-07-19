@@ -26,7 +26,9 @@ object DataModule {
             context,
             TenantDatabase::class.java,
             "rent_tracker.db"
-        ).build()
+        )
+        .fallbackToDestructiveMigration()
+        .build()
 
     @Provides
     fun provideTenantDao(database: TenantDatabase): TenantDao =

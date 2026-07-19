@@ -63,6 +63,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.realsanjeev.renttracker.domain.model.UserPreferences
 import com.realsanjeev.renttracker.ui.theme.Blue40
 import com.realsanjeev.renttracker.ui.util.Formatting
+import androidx.compose.ui.res.stringResource
+import com.realsanjeev.renttracker.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,6 +78,12 @@ fun SettingsScreen(
 ) {
     val preferences by viewModel.preferences.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val currentLanguage = context.resources.configuration.locales[0].language
+    val useNepali = when (preferences.numeralPreference) {
+        UserPreferences.NumeralPreference.NEPALI.value -> true
+        UserPreferences.NumeralPreference.ENGLISH.value -> false
+        else -> currentLanguage == "ne"
+    }
 
     var showCurrencyDialog by remember { mutableStateOf(false) }
     var showNumeralDialog by remember { mutableStateOf(false) }
@@ -86,7 +94,7 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
+                title = { Text(stringResource(R.string.nav_settings)) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -101,20 +109,21 @@ fun SettingsScreen(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
-            SettingsSectionHeader("Preferences")
+            SettingsSectionHeader(stringResource(R.string.section_preferences))
 
+            val notifMsg = stringResource(R.string.msg_notifications_enabled)
             SettingsRow(
                 icon = Icons.Default.Notifications,
-                title = "Notifications",
+                title = stringResource(R.string.row_notification),
                 subtitle = "Manage notification settings",
                 onClick = {
-                    Toast.makeText(context, "Notifications enabled", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, notifMsg, Toast.LENGTH_SHORT).show()
                 }
             )
 
             SettingsRow(
                 icon = Icons.Default.DarkMode,
-                title = "Dark Mode",
+                title = stringResource(R.string.row_dark_mode),
                 subtitle = if (isDarkMode) "Enabled" else "Disabled",
                 trailing = {
                     Switch(
@@ -126,81 +135,84 @@ fun SettingsScreen(
 
             HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
-            SettingsSectionHeader("Format")
+            SettingsSectionHeader(stringResource(R.string.section_format))
 
             SettingsRow(
                 icon = Icons.Default.Payments,
-                title = "Currency",
+                title = stringResource(R.string.row_currency),
                 subtitle = preferences.currencySymbol.trim(),
                 onClick = { showCurrencyDialog = true }
             )
 
             SettingsRow(
                 icon = Icons.Default.Pin,
-                title = "Numeral System",
+                title = stringResource(R.string.row_numeral),
                 subtitle = when (preferences.numeralPreference) {
-                    1 -> "English"
-                    2 -> "Nepali"
-                    else -> "Auto"
+                    1 -> stringResource(R.string.numeral_english)
+                    2 -> stringResource(R.string.numeral_nepali)
+                    else -> stringResource(R.string.numeral_auto)
                 },
                 onClick = { showNumeralDialog = true }
             )
 
             SettingsRow(
                 icon = Icons.Default.Language,
-                title = "Language",
+                title = stringResource(R.string.row_language),
                 subtitle = "Tap to switch",
                 onClick = { onToggleLanguage() }
             )
 
             HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
-            SettingsSectionHeader("Defaults")
+            SettingsSectionHeader(stringResource(R.string.section_defaults))
 
             SettingsRow(
                 icon = Icons.Default.ElectricBolt,
-                title = "Default Electricity Rate",
+                title = stringResource(R.string.row_rate),
                 subtitle = "${preferences.defaultElectricityRate}",
                 onClick = { showRateDialog = true }
             )
 
             SettingsRow(
                 icon = Icons.Default.CalendarMonth,
-                title = "Default Due Day",
-                subtitle = Formatting.ordinalSuffix(preferences.defaultDueDay),
+                title = stringResource(R.string.row_due_day),
+                subtitle = Formatting.ordinalSuffixLocalized(preferences.defaultDueDay, useNepali),
                 onClick = { showDueDayDialog = true }
             )
 
             HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
-            SettingsSectionHeader("More")
+            SettingsSectionHeader(stringResource(R.string.section_more))
 
+            val shareText = stringResource(R.string.share_message)
             SettingsRow(
                 icon = Icons.Default.Share,
-                title = "Share App",
+                title = stringResource(R.string.row_share),
                 subtitle = "Tell your friends",
                 onClick = {
                     val shareIntent = Intent(Intent.ACTION_SEND).apply {
                         type = "text/plain"
                         putExtra(Intent.EXTRA_SUBJECT, "RentTracker")
-                        putExtra(Intent.EXTRA_TEXT, "Check out RentTracker - the easiest way to manage your rental properties!")
+                        putExtra(Intent.EXTRA_TEXT, shareText)
                     }
                     context.startActivity(Intent.createChooser(shareIntent, "Share"))
                 }
             )
 
+            val privacyText = stringResource(R.string.privacy_policy_text)
             SettingsRow(
                 icon = Icons.Default.Shield,
-                title = "Privacy Policy",
+                title = stringResource(R.string.row_privacy),
                 subtitle = "How we handle your data",
                 onClick = {
-                    Toast.makeText(context, "Your data stays on your device. We never collect or share your information.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, privacyText, Toast.LENGTH_LONG).show()
                 }
             )
 
+            val noAppText = stringResource(R.string.msg_no_app_found)
             SettingsRow(
                 icon = Icons.Default.Email,
-                title = "Contact Us",
+                title = stringResource(R.string.row_contact),
                 subtitle = "Get help or give feedback",
                 onClick = {
                     val intent = Intent(Intent.ACTION_SENDTO).apply {
@@ -210,7 +222,7 @@ fun SettingsScreen(
                     try {
                         context.startActivity(intent)
                     } catch (e: Exception) {
-                        Toast.makeText(context, "No email app found", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, noAppText, Toast.LENGTH_SHORT).show()
                     }
                 }
             )
@@ -219,7 +231,7 @@ fun SettingsScreen(
 
             SettingsRow(
                 icon = Icons.AutoMirrored.Filled.ExitToApp,
-                title = "Clear All Data",
+                title = stringResource(R.string.row_clear_data),
                 subtitle = "Remove all tenants and reset settings",
                 iconTint = MaterialTheme.colorScheme.error,
                 onClick = { showClearDataDialog = true }
@@ -238,7 +250,7 @@ fun SettingsScreen(
             "£ " to "British Pound (£)"
         )
         SingleChoiceDialog(
-            title = "Currency",
+            title = stringResource(R.string.row_currency),
             options = currencies.map { it.second },
             selectedIndex = currencies.indexOfFirst { it.first == preferences.currencySymbol }.coerceAtLeast(0),
             onSelect = { index ->
@@ -250,9 +262,13 @@ fun SettingsScreen(
     }
 
     if (showNumeralDialog) {
-        val options = listOf("Auto (based on language)", "English (0-9)", "Nepali (०-९)")
+        val options = listOf(
+            stringResource(R.string.numeral_auto),
+            stringResource(R.string.numeral_english),
+            stringResource(R.string.numeral_nepali)
+        )
         SingleChoiceDialog(
-            title = "Numeral System",
+            title = stringResource(R.string.row_numeral),
             options = options,
             selectedIndex = preferences.numeralPreference,
             onSelect = { index ->
@@ -267,7 +283,7 @@ fun SettingsScreen(
         var rateText by remember { mutableStateOf(preferences.defaultElectricityRate.toString()) }
         AlertDialog(
             onDismissRequest = { showRateDialog = false },
-            title = { Text("Default Electricity Rate") },
+            title = { Text(stringResource(R.string.row_rate)) },
             text = {
                 OutlinedTextField(
                     value = rateText,
@@ -280,19 +296,20 @@ fun SettingsScreen(
                 TextButton(onClick = {
                     rateText.toDoubleOrNull()?.let { viewModel.updateElectricityRate(it) }
                     showRateDialog = false
-                }) { Text("Save") }
+                }) { Text(stringResource(R.string.btn_save)) }
             },
             dismissButton = {
-                TextButton(onClick = { showRateDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showRateDialog = false }) { Text(stringResource(R.string.btn_cancel)) }
             }
         )
     }
 
     if (showDueDayDialog) {
         val days = (1..31).map { it }
+        val optionFormat = stringResource(R.string.due_day_option_format)
         SingleChoiceDialog(
-            title = "Default Due Day",
-            options = days.map { Formatting.ordinalSuffix(it) + " of month" },
+            title = stringResource(R.string.row_due_day),
+            options = days.map { String.format(java.util.Locale.US, optionFormat, Formatting.ordinalSuffixLocalized(it, useNepali)) },
             selectedIndex = preferences.defaultDueDay - 1,
             onSelect = { index ->
                 viewModel.updateDueDay(index + 1)
@@ -305,8 +322,8 @@ fun SettingsScreen(
     if (showClearDataDialog) {
         AlertDialog(
             onDismissRequest = { showClearDataDialog = false },
-            title = { Text("Clear All Data") },
-            text = { Text("This will remove all tenants and reset settings. This action cannot be undone.") },
+            title = { Text(stringResource(R.string.row_clear_data)) },
+            text = { Text(stringResource(R.string.msg_clear_data_confirm)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -314,10 +331,10 @@ fun SettingsScreen(
                         showClearDataDialog = false
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                ) { Text("Clear", color = MaterialTheme.colorScheme.onError) }
+                ) { Text(stringResource(R.string.btn_clear), color = MaterialTheme.colorScheme.onError) }
             },
             dismissButton = {
-                TextButton(onClick = { showClearDataDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showClearDataDialog = false }) { Text(stringResource(R.string.btn_cancel)) }
             }
         )
     }

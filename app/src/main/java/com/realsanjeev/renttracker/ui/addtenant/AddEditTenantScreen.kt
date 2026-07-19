@@ -45,6 +45,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.realsanjeev.renttracker.domain.model.TenantStatus
 import java.util.Calendar
+import androidx.compose.ui.res.stringResource
+import com.realsanjeev.renttracker.R
+import com.realsanjeev.renttracker.ui.util.localizedStringId
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,7 +72,7 @@ fun AddEditTenantScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(if (uiState.isEditing) "Edit Tenant" else "Add Tenant")
+                    Text(if (uiState.isEditing) stringResource(R.string.title_edit_tenant) else stringResource(R.string.title_add_tenant))
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
@@ -99,7 +102,7 @@ fun AddEditTenantScreen(
             OutlinedTextField(
                 value = uiState.name,
                 onValueChange = viewModel::updateName,
-                label = { Text("Tenant Name") },
+                label = { Text(stringResource(R.string.label_tenant_name)) },
                 placeholder = { Text("e.g. Alex Sharma") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
@@ -109,7 +112,7 @@ fun AddEditTenantScreen(
             OutlinedTextField(
                 value = uiState.propertyName,
                 onValueChange = viewModel::updatePropertyName,
-                label = { Text("Property") },
+                label = { Text(stringResource(R.string.label_property)) },
                 placeholder = { Text("e.g. Sunset Heights Apt 3B") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
@@ -119,7 +122,7 @@ fun AddEditTenantScreen(
             OutlinedTextField(
                 value = uiState.rentPay,
                 onValueChange = viewModel::updateRentPay,
-                label = { Text("Monthly Rent") },
+                label = { Text(stringResource(R.string.label_monthly_rent)) },
                 placeholder = { Text("2500") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
@@ -129,7 +132,7 @@ fun AddEditTenantScreen(
             OutlinedTextField(
                 value = uiState.paymentDate,
                 onValueChange = {},
-                label = { Text("Payment Date") },
+                label = { Text(stringResource(R.string.label_payment_date)) },
                 placeholder = { Text("YYYY-MM-DD") },
                 readOnly = true,
                 enabled = true,
@@ -167,7 +170,7 @@ fun AddEditTenantScreen(
                 OutlinedTextField(
                     value = uiState.electricityUnitLast,
                     onValueChange = viewModel::updateElectricityUnitLast,
-                    label = { Text("Last Reading") },
+                    label = { Text(stringResource(R.string.label_last_reading)) },
                     placeholder = { Text("1400") },
                     singleLine = true,
                     modifier = Modifier.weight(1f),
@@ -176,7 +179,7 @@ fun AddEditTenantScreen(
                 OutlinedTextField(
                     value = uiState.electricityUnitCurrent,
                     onValueChange = viewModel::updateElectricityUnitCurrent,
-                    label = { Text("Current Reading") },
+                    label = { Text(stringResource(R.string.label_current_reading)) },
                     placeholder = { Text("1450") },
                     singleLine = true,
                     modifier = Modifier.weight(1f),
@@ -187,7 +190,7 @@ fun AddEditTenantScreen(
             OutlinedTextField(
                 value = uiState.electricityRate,
                 onValueChange = viewModel::updateElectricityRate,
-                label = { Text("Rate per Unit") },
+                label = { Text(stringResource(R.string.label_rate_per_unit)) },
                 placeholder = { Text("15.0") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
@@ -195,7 +198,7 @@ fun AddEditTenantScreen(
             )
 
             Text(
-                text = "Status",
+                text = stringResource(R.string.label_status),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold
             )
@@ -219,7 +222,7 @@ fun AddEditTenantScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = status.name,
+                            text = stringResource(status.localizedStringId()),
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }
@@ -237,7 +240,7 @@ fun AddEditTenantScreen(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.btn_cancel))
                 }
                 Button(
                     onClick = viewModel::save,
@@ -252,7 +255,7 @@ fun AddEditTenantScreen(
                             color = MaterialTheme.colorScheme.onPrimary
                         )
                     } else {
-                        Text(if (uiState.isEditing) "Update" else "Save")
+                        Text(if (uiState.isEditing) stringResource(R.string.btn_update) else stringResource(R.string.btn_save))
                     }
                 }
             }

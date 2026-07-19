@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -72,6 +73,7 @@ fun RentTrackerNavHost(
 ) {
     val navController = rememberNavController()
     val uiState by dashboardViewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     val bottomNavItems = listOf(
         BottomNavItem.Dashboard,
         BottomNavItem.Tenants,
@@ -123,7 +125,11 @@ fun RentTrackerNavHost(
                         navController.navigate(Screen.AddTenant.createRoute(tenant.id))
                     },
                     onRecordPayment = {
-                        navController.navigate(Screen.AddTenant.createRoute())
+                        android.widget.Toast.makeText(
+                            context,
+                            context.getString(com.realsanjeev.renttracker.R.string.msg_record_payment_hint),
+                            android.widget.Toast.LENGTH_SHORT
+                        ).show()
                     },
                     onSendReminder = onSendReminder,
                     onDeleteTenant = { tenant ->

@@ -60,6 +60,10 @@ import com.realsanjeev.renttracker.ui.theme.Red40
 import com.realsanjeev.renttracker.ui.util.Formatting
 import com.realsanjeev.renttracker.ui.util.avatarColorIndex
 import com.realsanjeev.renttracker.ui.util.statusColorIndex
+import com.realsanjeev.renttracker.ui.util.localizedStringId
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
+import com.realsanjeev.renttracker.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,10 +78,17 @@ fun DashboardScreen(
     onDeleteTenant: (Tenant) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val currentLanguage = LocalContext.current.resources.configuration.locales[0].language
+    val useNepali = when (uiState.preferences.numeralPreference) {
+        UserPreferences.NumeralPreference.NEPALI.value -> true
+        UserPreferences.NumeralPreference.ENGLISH.value -> false
+        else -> currentLanguage == "ne"
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("RentTracker") },
+                title = { Text(stringResource(R.string.app_name)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Blue40,
                     titleContentColor = Color.White,
@@ -112,9 +123,9 @@ fun DashboardScreen(
             ) {
                 item { Spacer(modifier = Modifier.height(4.dp)) }
 
-                item { GreetingSection(uiState.preferences) }
+                item { GreetingSection(uiState.preferences, useNepali) }
 
-                item { SummaryCard(uiState) }
+                item { SummaryCard(uiState, useNepali) }
 
                 item { ActionChips(onAddTenant, onRecordPayment, onSendReminder) }
 
@@ -125,11 +136,11 @@ fun DashboardScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Tenants",
+                            text = stringResource(R.string.nav_tenants),
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
-                            text = "See All",
+                            text = stringResource(R.string.see_all),
                             style = MaterialTheme.typography.labelLarge,
                             color = Blue40,
                             modifier = Modifier.clickable { }
@@ -144,6 +155,7 @@ fun DashboardScreen(
                     TenantCard(
                         tenant = tenant,
                         preferences = uiState.preferences,
+                        useNepali = useNepali,
                         onClick = { onEditTenant(tenant) },
                         onLongClick = { onDeleteTenant(tenant) }
                     )
@@ -156,20 +168,22 @@ fun DashboardScreen(
 }
 
 @Composable
-private fun GreetingSection(preferences: UserPreferences) {
+private fun GreetingSection(preferences: UserPreferences, useNepali: Boolean) {
     Column {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
         ) {
             Text(
-                text = "Hello, Landlord",
+                text = stringResource(R.string.greeting),
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onBackground
             )
         }
+        val dayStr = if (useNepali) convertToNepaliDigitsStr("${preferences.defaultDueDay}") else preferences.defaultDueDay.toString()
+        val formattedDay = if (useNepali) dayStr else "$dayStr${getOrdinalSuffix(preferences.defaultDueDay, false)}"
         Text(
-            text = "${if (preferences.numeralPreference == UserPreferences.NumeralPreference.NEPALI.value) convertToNepaliDigitsStr("${preferences.defaultDueDay}") else preferences.defaultDueDay.toString()}${getOrdinalSuffix(preferences.defaultDueDay, preferences.numeralPreference == UserPreferences.NumeralPreference.NEPALI.value)} of each month is rent due day",
+            text = stringResource(R.string.rent_due_day_format, formattedDay),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -177,7 +191,7 @@ private fun GreetingSection(preferences: UserPreferences) {
 }
 
 @Composable
-private fun SummaryCard(uiState: DashboardUiState) {
+private fun SummaryCard(uiState: DashboardUiState, useNepali: Boolean) {
     val summary = uiState.summary
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -187,12 +201,11 @@ private fun SummaryCard(uiState: DashboardUiState) {
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
-                text = "Total Revenue",
+                text = stringResource(R.string.total_revenue),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White.copy(alpha = 0.8f)
             )
             Spacer(modifier = Modifier.height(4.dp))
-            val useNepali = uiState.preferences.numeralPreference == UserPreferences.NumeralPreference.NEPALI.value
             Text(
                 text = Formatting.formatAmountLocalized(
                     summary.totalRevenue,
@@ -229,7 +242,7 @@ private fun SummaryCard(uiState: DashboardUiState) {
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "Collected",
+                            text = stringResource(R.string.collected),
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.White.copy(alpha = 0.7f)
                         )
@@ -256,7 +269,7 @@ private fun SummaryCard(uiState: DashboardUiState) {
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "Pending",
+                            text = stringResource(R.string.pending),
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.White.copy(alpha = 0.7f)
                         )
@@ -290,21 +303,21 @@ private fun ActionChips(
     ) {
         ActionChipItem(
             icon = Icons.Default.Add,
-            label = "Add Property",
+            label = stringResource(R.string.action_add_tenant),
             containerColor = Blue40,
             onClick = onAddTenant,
             modifier = Modifier.weight(1f)
         )
         ActionChipItem(
             icon = Icons.Default.Payments,
-            label = "Record",
+            label = stringResource(R.string.action_record),
             containerColor = Green40,
             onClick = onRecordPayment,
             modifier = Modifier.weight(1f)
         )
         ActionChipItem(
             icon = Icons.Default.Send,
-            label = "Remind",
+            label = stringResource(R.string.action_remind),
             containerColor = Amber40,
             onClick = onSendReminder,
             modifier = Modifier.weight(1f)
@@ -356,10 +369,10 @@ private fun ActionChipItem(
 private fun TenantCard(
     tenant: Tenant,
     preferences: UserPreferences,
+    useNepali: Boolean,
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
-    val useNepali = preferences.numeralPreference == UserPreferences.NumeralPreference.NEPALI.value
     val avatarColors = listOf(Blue40, Amber40, Color(0xFF7C3AED), Green40)
     val avatarColor = avatarColors[tenant.avatarColorIndex()]
 
@@ -424,7 +437,7 @@ private fun TenantCard(
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
                         Text(
-                            text = tenant.status.name,
+                            text = stringResource(tenant.status.localizedStringId()),
                             style = MaterialTheme.typography.labelSmall,
                             color = statusColorPair[0],
                             fontWeight = FontWeight.SemiBold
@@ -462,8 +475,9 @@ private fun TenantCard(
                             )
                         }
                         if (tenant.electricityUnitsUsed > 0) {
+                            val unitsVal = if (useNepali) convertToNepaliDigitsStr("${tenant.electricityUnitsUsed.toInt()}") else tenant.electricityUnitsUsed.toInt().toString()
                             Text(
-                                text = "${if (useNepali) convertToNepaliDigitsStr("${tenant.electricityUnitsUsed.toInt()}") else tenant.electricityUnitsUsed.toInt()} units",
+                                text = stringResource(R.string.units_format, unitsVal),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )

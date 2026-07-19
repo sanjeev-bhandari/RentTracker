@@ -77,4 +77,18 @@ class FormattingTest {
         val result = Formatting.formatNumber("", false)
         assertEquals("", result)
     }
+
+    @Test
+    fun `ordinalSuffixLocalized returns Nepali digits without English suffix when flag is true`() {
+        assertEquals("१", Formatting.ordinalSuffixLocalized(1, true))
+        assertEquals("१२", Formatting.ordinalSuffixLocalized(12, true))
+        assertEquals("२१", Formatting.ordinalSuffixLocalized(21, true))
+    }
+
+    @Test
+    fun `ordinalSuffixLocalized returns English suffix when flag is false`() {
+        assertEquals("1st", Formatting.ordinalSuffixLocalized(1, false))
+        assertEquals("12th", Formatting.ordinalSuffixLocalized(12, false))
+        assertEquals("21st", Formatting.ordinalSuffixLocalized(21, false))
+    }
 }

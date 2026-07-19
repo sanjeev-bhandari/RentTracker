@@ -36,4 +36,36 @@
     <string name="share_message">Track your rental income and tenants with RentTracker — the free landlord dashboard app!</string>
     <string name="privacy_policy_text">All your data is stored securely on-device. No data is collected, shared, or transmitted over the internet. RentTracker is a fully offline application.</string>
     <string name="msg_no_app_found">No app found to handle this action.</string>
+
+    <string name="title_add_tenant">Add Tenant</string>
+    <string name="title_edit_tenant">Edit Tenant</string>
+    <string name="section_preferences">Preferences</string>
+    <string name="section_format">Format</string>
+    <string name="section_defaults">Defaults</string>
+    <string name="section_more">More</string>
+    <string name="label_tenant_name">Tenant Name</string>
+    <string name="label_property">Property</string>
+    <string name="label_monthly_rent">Monthly Rent</string>
+    <string name="label_payment_date">Payment Date</string>
+    <string name="label_last_reading">Last Reading</string>
+    <string name="label_current_reading">Current Reading</string>
+    <string name="label_rate_per_unit">Rate per Unit</string>
+    <string name="label_status">Status</string>
+    <string name="btn_update">Update</string>
+    <string name="btn_clear">Clear</string>
+    <string name="total_revenue">Total Revenue</string>
+    <string name="collected">Collected</string>
+    <string name="pending">Pending</string>
+    <string name="action_add_tenant">Add Tenant</string>
+    <string name="action_record">Record</string>
+    <string name="action_remind">Remind</string>
+    <string name="numeral_auto">Auto (based on language)</string>
+    <string name="numeral_english">English (0-9)</string>
+    <string name="numeral_nepali">Nepali (०-९)</string>
+    <string name="rent_due_day_format">%1$s of each month is rent due day</string>
+    <string name="due_day_option_format">%1$s of month</string>
+    <string name="units_format">%1$s units</string>
+    <string name="msg_clear_data_confirm">This will remove all tenants and reset settings. This action cannot be undone.</string>
+    <string name="msg_notifications_enabled">Notifications enabled</string>
+    <string name="msg_record_payment_hint">Select a tenant from the list to record a payment</string>
 </resources>
