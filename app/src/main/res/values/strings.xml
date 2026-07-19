@@ -1,3 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Rent Tracker</string>
+    <string name="app_name">RentTracker</string>
+    <string name="greeting">Hello, Landlord</string>
+    <string name="subtitle">%d Properties</string>
+
+    <string name="see_all">See All</string>
+    <string name="elec_units_format">%1$.0f units (%2$s)</string>
+
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_tenants">Tenants</string>
+    <string name="nav_settings">Settings</string>
+
+    <string name="status_paid">PAID</string>
+    <string name="status_pending">PENDING</string>
+    <string name="status_overdue">OVERDUE</string>
+
+    <string name="btn_save">Save</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="msg_tenant_saved">Tenant record saved successfully!</string>
+    <string name="msg_tenant_deleted">Tenant deleted.</string>
+    <string name="msg_invalid_input">Please enter valid tenant name and rent amount.</string>
+
+    <string name="row_notification">Notifications</string>
+    <string name="row_dark_mode">Dark Mode</string>
+    <string name="row_currency">Currency</string>
+    <string name="row_numeral">Numeral System</string>
+    <string name="row_language">Language</string>
+    <string name="row_rate">Default Electricity Rate</string>
+    <string name="row_due_day">Default Due Day</string>
+    <string name="row_share">Share App</string>
+    <string name="row_privacy">Privacy Policy</string>
+    <string name="row_contact">Contact Us</string>
+    <string name="row_clear_data">Clear All Data</string>
+
+    <string name="share_message">Track your rental income and tenants with RentTracker — the free landlord dashboard app!</string>
+    <string name="privacy_policy_text">All your data is stored securely on-device. No data is collected, shared, or transmitted over the internet. RentTracker is a fully offline application.</string>
+    <string name="msg_no_app_found">No app found to handle this action.</string>
 </resources>

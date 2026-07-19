@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">रेन्ट ट्र्याकर</string>
+    <string name="greeting">नमस्ते, घरधनी</string>
+    <string name="subtitle">%d वटा घरहरू</string>
+
+    <string name="see_all">सबै हेर्नुहोस्</string>
+    <string name="elec_units_format">%1$.0f युनिट (%2$s)</string>
+
+    <string name="nav_dashboard">ड्यासबोर्ड</string>
+    <string name="nav_tenants">बहालवालाहरू</string>
+    <string name="nav_settings">सेटिङहरू</string>
+
+    <string name="status_paid">भुक्तानी भयो</string>
+    <string name="status_pending">बाँकी छ</string>
+    <string name="status_overdue">म्याद नाघ्यो</string>
+
+    <string name="btn_save">बचत गर्नुहोस्</string>
+    <string name="btn_cancel">रद्द गर्नुहोस्</string>
+    <string name="msg_tenant_saved">बहालवाला रेकर्ड सफलतापूर्वक बचत भयो!</string>
+    <string name="msg_tenant_deleted">बहालवाला मेटाइयो।</string>
+    <string name="msg_invalid_input">कृपया मान्य नाम र भाडा रकम प्रविष्ट गर्नुहोस्।</string>
+
+    <string name="row_notification">सूचनाहरू</string>
+    <string name="row_dark_mode">डार्क मोड</string>
+    <string name="row_currency">मुद्रा प्रकार</string>
+    <string name="row_numeral">अंक प्रदर्शन</string>
+    <string name="row_language">भाषा</string>
+    <string name="row_rate">पूर्वनिर्धारित बिजुली दर</string>
+    <string name="row_due_day">भाडा बुझाउने दिन</string>
+    <string name="row_share">एप सेयर गर्नुहोस्</string>
+    <string name="row_privacy">गोपनीयता नीति</string>
+    <string name="row_contact">सम्पर्क गर्नुहोस्</string>
+    <string name="row_clear_data">सबै डाटा मेटाउनुहोस्</string>
+
+    <string name="share_message">रेन्ट ट्र्याकर — नि:शुल्क घरधनी ड्यासबोर्ड एप। भाडा र बहालवाला व्यवस्थापन गर्नुहोस्!</string>
+    <string name="privacy_policy_text">तपाईंको सबै डाटा उपकरणमा सुरक्षित रूपमा भण्डारण गरिन्छ। कुनै पनि डाटा संकलन, साझेदारी, वा इन्टरनेट मार्फत प्रसारण गरिँदैन। रेन्ट ट्र्याकर पूर्ण रूपमा अफलाइन एप हो।</string>
+    <string name="msg_no_app_found">यो कार्यको लागि कुनै एप फेला परेन।</string>
+</resources>
