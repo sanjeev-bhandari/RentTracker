@@ -58,7 +58,7 @@ enum class TenantFilterStatus {
 fun TenantsScreen(
     uiState: DashboardUiState,
     onAddTenant: () -> Unit,
-    onEditTenant: (Tenant) -> Unit,
+    onTenantClick: (Tenant) -> Unit,
     onDeleteTenant: (Tenant) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -77,9 +77,9 @@ fun TenantsScreen(
                 tenant.propertyName.contains(searchQuery, ignoreCase = true)
         val matchesFilter = when (selectedFilter) {
             TenantFilterStatus.ALL -> true
-            TenantFilterStatus.PAID -> tenant.status == TenantStatus.PAID
-            TenantFilterStatus.PENDING -> tenant.status == TenantStatus.PENDING
-            TenantFilterStatus.OVERDUE -> tenant.status == TenantStatus.OVERDUE
+            TenantFilterStatus.PAID -> tenant.calculatedStatus == TenantStatus.PAID
+            TenantFilterStatus.PENDING -> tenant.calculatedStatus == TenantStatus.PENDING
+            TenantFilterStatus.OVERDUE -> tenant.calculatedStatus == TenantStatus.OVERDUE
         }
         matchesSearch && matchesFilter
     }
@@ -217,7 +217,7 @@ fun TenantsScreen(
                             tenant = tenant,
                             preferences = uiState.preferences,
                             useNepali = useNepali,
-                            onClick = { onEditTenant(tenant) },
+                            onClick = { onTenantClick(tenant) },
                             onLongClick = { onDeleteTenant(tenant) }
                         )
                     }

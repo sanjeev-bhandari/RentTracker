@@ -1,8 +1,9 @@
-package com.realsanjeev.renttracker.ui.dashboard
+package com.realsanjeev.renttracker.ui.tenantdetail
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.realsanjeev.renttracker.domain.model.DashboardSummary
+import com.realsanjeev.renttracker.domain.model.PaymentRecord
 import com.realsanjeev.renttracker.domain.model.Tenant
 import com.realsanjeev.renttracker.domain.model.UserPreferences
 import com.realsanjeev.renttracker.domain.repository.TenantRepository
@@ -15,53 +16,50 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class DashboardUiState(
-    val tenants: List<Tenant> = emptyList(),
-    val summary: DashboardSummary = DashboardSummary(),
+data class TenantDetailUiState(
+    val tenant: Tenant? = null,
+    val paymentHistory: List<PaymentRecord> = emptyList(),
     val preferences: UserPreferences = UserPreferences(),
     val isLoading: Boolean = true
 )
 
 @HiltViewModel
-class DashboardViewModel @Inject constructor(
+class TenantDetailViewModel @Inject constructor(
     private val tenantRepository: TenantRepository,
-    preferencesRepository: UserPreferencesRepository
+    private val preferencesRepository: UserPreferencesRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    val uiState: StateFlow<DashboardUiState> = combine(
-        tenantRepository.observeAllTenants(),
-        tenantRepository.observeDashboardSummary(),
+    val tenantId: Long = savedStateHandle.get<Long>("tenantId") ?: -1L
+
+    val uiState: StateFlow<TenantDetailUiState> = combine(
+        tenantRepository.observeTenantById(tenantId),
+        tenantRepository.getPaymentHistory(tenantId),
         preferencesRepository.preferences
-    ) { tenants, summary, prefs ->
-        DashboardUiState(
-            tenants = tenants,
-            summary = summary,
+    ) { tenant, history, prefs ->
+        TenantDetailUiState(
+            tenant = tenant,
+            paymentHistory = history,
             preferences = prefs,
             isLoading = false
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = DashboardUiState()
+        initialValue = TenantDetailUiState()
     )
 
-    fun recordPayment(record: com.realsanjeev.renttracker.domain.model.PaymentRecord, updatedTenant: Tenant) {
+    fun recordPayment(record: PaymentRecord, updatedTenant: Tenant) {
         viewModelScope.launch {
             tenantRepository.recordPayment(record, updatedTenant)
         }
     }
 
-    fun deleteTenant(tenant: Tenant) {
+    fun deleteTenant(onDeleted: () -> Unit) {
+        if (tenantId <= 0) return
         viewModelScope.launch {
-            tenantRepository.deleteTenant(tenant.id)
-        }
-    }
-
-    fun clearAllData() {
-        viewModelScope.launch {
-            uiState.value.tenants.forEach { tenant ->
-                tenantRepository.deleteTenant(tenant.id)
-            }
+            tenantRepository.deleteTenant(tenantId)
+            onDeleted()
         }
     }
 }

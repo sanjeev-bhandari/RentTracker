@@ -6,17 +6,17 @@ import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -27,9 +27,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.realsanjeev.renttracker.ui.addtenant.AddEditTenantScreen
 import com.realsanjeev.renttracker.ui.dashboard.DashboardScreen
-import com.realsanjeev.renttracker.ui.dashboard.DashboardUiState
 import com.realsanjeev.renttracker.ui.dashboard.DashboardViewModel
 import com.realsanjeev.renttracker.ui.settings.SettingsScreen
+import com.realsanjeev.renttracker.ui.tenantdetail.TenantDetailScreen
 import com.realsanjeev.renttracker.ui.tenants.TenantsScreen
 
 sealed class Screen(val route: String) {
@@ -37,6 +37,9 @@ sealed class Screen(val route: String) {
     data object Tenants : Screen("tenants")
     data object AddTenant : Screen("add_tenant?tenantId={tenantId}") {
         fun createRoute(tenantId: Long = -1L) = "add_tenant?tenantId=$tenantId"
+    }
+    data object TenantDetail : Screen("tenant_detail/{tenantId}") {
+        fun createRoute(tenantId: Long) = "tenant_detail/$tenantId"
     }
     data object Settings : Screen("settings")
 }
@@ -84,30 +87,35 @@ fun RentTrackerNavHost(
         BottomNavItem.Settings
     )
 
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+    val shouldShowBottomBar = bottomNavItems.any { item ->
+        currentDestination?.hierarchy?.any { it.route == item.route } == true
+    }
+
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentDestination = navBackStackEntry?.destination
-
-                bottomNavItems.forEach { item ->
-                    NavigationBarItem(
-                        icon = { item.icon() },
-                        label = { Text(item.label) },
-                        selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
-                        colors = NavigationBarItemDefaults.colors(
-                            indicatorColor = MaterialTheme.colorScheme.primaryContainer
-                        ),
-                        onClick = {
-                            navController.navigate(item.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+            if (shouldShowBottomBar) {
+                NavigationBar {
+                    bottomNavItems.forEach { item ->
+                        NavigationBarItem(
+                            icon = { item.icon() },
+                            label = { Text(item.label) },
+                            selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
+                            colors = NavigationBarItemDefaults.colors(
+                                indicatorColor = MaterialTheme.colorScheme.primaryContainer
+                            ),
+                            onClick = {
+                                navController.navigate(item.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         },
@@ -128,15 +136,11 @@ fun RentTrackerNavHost(
                     onAddTenant = {
                         navController.navigate(Screen.AddTenant.createRoute())
                     },
-                    onEditTenant = { tenant ->
-                        navController.navigate(Screen.AddTenant.createRoute(tenant.id))
+                    onTenantClick = { tenant ->
+                        navController.navigate(Screen.TenantDetail.createRoute(tenant.id))
                     },
-                    onRecordPayment = {
-                        android.widget.Toast.makeText(
-                            context,
-                            context.getString(com.realsanjeev.renttracker.R.string.msg_record_payment_hint),
-                            android.widget.Toast.LENGTH_SHORT
-                        ).show()
+                    onRecordPaymentConfirm = { record, updatedTenant ->
+                        dashboardViewModel.recordPayment(record, updatedTenant)
                     },
                     onSendReminder = onSendReminder,
                     onDeleteTenant = { tenant ->
@@ -160,11 +164,25 @@ fun RentTrackerNavHost(
                     onAddTenant = {
                         navController.navigate(Screen.AddTenant.createRoute())
                     },
-                    onEditTenant = { tenant ->
-                        navController.navigate(Screen.AddTenant.createRoute(tenant.id))
+                    onTenantClick = { tenant ->
+                        navController.navigate(Screen.TenantDetail.createRoute(tenant.id))
                     },
                     onDeleteTenant = { tenant ->
                         dashboardViewModel.deleteTenant(tenant)
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.TenantDetail.route,
+                arguments = listOf(
+                    navArgument("tenantId") { type = NavType.LongType }
+                )
+            ) {
+                TenantDetailScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onEditTenant = { tenantId ->
+                        navController.navigate(Screen.AddTenant.createRoute(tenantId))
                     }
                 )
             }

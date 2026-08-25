@@ -17,6 +17,7 @@
 
     <string name="btn_save">Save</string>
     <string name="btn_cancel">Cancel</string>
+    <string name="btn_ok">OK</string>
     <string name="msg_tenant_saved">Tenant record saved successfully!</string>
     <string name="msg_tenant_deleted">Tenant deleted.</string>
     <string name="msg_invalid_input">Please enter valid tenant name and rent amount.</string>
@@ -25,6 +26,9 @@
     <string name="row_dark_mode">Dark Mode</string>
     <string name="row_currency">Currency</string>
     <string name="row_numeral">Numeral System</string>
+    <string name="row_calendar">Calendar</string>
+    <string name="calendar_ad">AD (English / Gregorian)</string>
+    <string name="calendar_bs">BS (Nepali / Bikram Sambat)</string>
     <string name="row_language">Language</string>
     <string name="row_rate">Default Electricity Rate</string>
     <string name="row_due_day">Default Due Day</string>
@@ -68,4 +72,8 @@
     <string name="msg_clear_data_confirm">This will remove all tenants and reset settings. This action cannot be undone.</string>
     <string name="msg_notifications_enabled">Notifications enabled</string>
     <string name="msg_record_payment_hint">Select a tenant from the list to record a payment</string>
+    <string name="bs_picker_title">Select BS Date</string>
+    <string name="bs_picker_year">Year</string>
+    <string name="bs_picker_month">Month</string>
+    <string name="bs_picker_day">Day</string>
 </resources>

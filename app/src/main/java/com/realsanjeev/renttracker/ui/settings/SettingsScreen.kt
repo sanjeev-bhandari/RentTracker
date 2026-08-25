@@ -90,6 +90,7 @@ fun SettingsScreen(
 
     var showCurrencyDialog by remember { mutableStateOf(false) }
     var showNumeralDialog by remember { mutableStateOf(false) }
+    var showCalendarDialog by remember { mutableStateOf(false) }
     var showRateDialog by remember { mutableStateOf(false) }
     var showDueDayDialog by remember { mutableStateOf(false) }
     var showClearDataDialog by remember { mutableStateOf(false) }
@@ -179,6 +180,16 @@ fun SettingsScreen(
                         title = stringResource(R.string.row_language),
                         subtitle = "Tap to switch",
                         onClick = { onToggleLanguage() }
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                    SettingsRow(
+                        icon = Icons.Default.CalendarMonth,
+                        title = stringResource(R.string.row_calendar),
+                        subtitle = when (preferences.calendarPreference) {
+                            UserPreferences.CalendarPreference.BS.value -> stringResource(R.string.calendar_bs)
+                            else -> stringResource(R.string.calendar_ad)
+                        },
+                        onClick = { showCalendarDialog = true }
                     )
                 }
             }
@@ -321,6 +332,23 @@ fun SettingsScreen(
                 showNumeralDialog = false
             },
             onDismiss = { showNumeralDialog = false }
+        )
+    }
+
+    if (showCalendarDialog) {
+        val options = listOf(
+            stringResource(R.string.calendar_ad),
+            stringResource(R.string.calendar_bs)
+        )
+        SingleChoiceDialog(
+            title = stringResource(R.string.row_calendar),
+            options = options,
+            selectedIndex = preferences.calendarPreference,
+            onSelect = { index ->
+                viewModel.updateCalendarPreference(index)
+                showCalendarDialog = false
+            },
+            onDismiss = { showCalendarDialog = false }
         )
     }
 

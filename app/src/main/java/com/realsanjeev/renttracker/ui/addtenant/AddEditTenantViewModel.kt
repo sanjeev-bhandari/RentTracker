@@ -29,8 +29,11 @@ data class AddEditTenantUiState(
     val propertyName: String = "",
     val rentPay: String = "",
     val paymentDate: String = "",
+    val moveInDate: String = "",
+    val isAdvancePaid: Boolean = true,
+    val calendarPreference: Int = 0,
+    val numeralPreference: Int = 0,
     val electricityUnitLast: String = "",
-    val electricityUnitCurrent: String = "",
     val electricityRate: String = "",
     val status: TenantStatus = TenantStatus.PAID,
     val loading: Boolean = false,
@@ -61,10 +64,14 @@ class AddEditTenantViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val prefs = preferencesRepository.preferences.first()
+            val todayStr = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
             _uiState.update {
                 it.copy(
                     electricityRate = formatDouble(prefs.defaultElectricityRate),
-                    paymentDate = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
+                    calendarPreference = prefs.calendarPreference,
+                    numeralPreference = prefs.numeralPreference,
+                    moveInDate = todayStr,
+                    paymentDate = computeNextDueDate(todayStr, true)
                 )
             }
             if (tenantId > 0) {
@@ -76,8 +83,9 @@ class AddEditTenantViewModel @Inject constructor(
                             propertyName = tenant.propertyName,
                             rentPay = formatDouble(tenant.rentPay),
                             paymentDate = tenant.paymentDate,
+                            moveInDate = if (tenant.moveInDate.isNotBlank()) tenant.moveInDate else tenant.paymentDate,
+                            isAdvancePaid = tenant.isAdvancePaid,
                             electricityUnitLast = formatDouble(tenant.electricityUnitLast),
-                            electricityUnitCurrent = formatDouble(tenant.electricityUnitCurrent),
                             electricityRate = formatDouble(tenant.electricityRate),
                             status = tenant.status
                         )
@@ -103,6 +111,21 @@ class AddEditTenantViewModel @Inject constructor(
         validateForm()
     }
 
+    fun updateMoveInDate(value: String) {
+        _uiState.update { state ->
+            val nextDue = computeNextDueDate(value, state.isAdvancePaid)
+            state.copy(moveInDate = value, paymentDate = nextDue)
+        }
+        validateForm()
+    }
+
+    fun updateIsAdvancePaid(isAdvance: Boolean) {
+        _uiState.update { state ->
+            val nextDue = computeNextDueDate(state.moveInDate, isAdvance)
+            state.copy(isAdvancePaid = isAdvance, paymentDate = nextDue)
+        }
+    }
+
     fun updatePaymentDate(value: String) {
         _uiState.update { it.copy(paymentDate = value) }
         validateForm()
@@ -110,11 +133,6 @@ class AddEditTenantViewModel @Inject constructor(
 
     fun updateElectricityUnitLast(value: String) {
         _uiState.update { it.copy(electricityUnitLast = value) }
-        validateForm()
-    }
-
-    fun updateElectricityUnitCurrent(value: String) {
-        _uiState.update { it.copy(electricityUnitCurrent = value) }
         validateForm()
     }
 
@@ -127,6 +145,15 @@ class AddEditTenantViewModel @Inject constructor(
         _uiState.update { it.copy(status = status) }
     }
 
+    private fun computeNextDueDate(moveInDateStr: String, isAdvance: Boolean): String {
+        return try {
+            val moveIn = java.time.LocalDate.parse(moveInDateStr)
+            moveIn.plusMonths(1).toString()
+        } catch (e: Exception) {
+            moveInDateStr
+        }
+    }
+
     fun save() {
         val state = _uiState.value
         if (!state.valid) return
@@ -134,16 +161,18 @@ class AddEditTenantViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(loading = true) }
             try {
+                val lastUnit = state.electricityUnitLast.toDoubleOrNull() ?: 0.0
                 val tenant = Tenant(
                     id = if (state.isEditing) tenantId else 0,
                     name = state.name.trim(),
                     propertyName = state.propertyName.trim(),
                     rentPay = state.rentPay.toDoubleOrNull() ?: 0.0,
                     paymentDate = state.paymentDate.trim(),
-                    electricityUnitLast = state.electricityUnitLast.toDoubleOrNull() ?: 0.0,
-                    electricityUnitCurrent = state.electricityUnitCurrent.toDoubleOrNull() ?: 0.0,
+                    moveInDate = state.moveInDate.trim(),
+                    isAdvancePaid = state.isAdvancePaid,
+                    electricityUnitLast = lastUnit,
+                    electricityUnitCurrent = lastUnit,
                     electricityRate = state.electricityRate.toDoubleOrNull() ?: 0.0,
-                    status = state.status
                 )
                 if (state.isEditing) {
                     tenantRepository.updateTenant(tenant)

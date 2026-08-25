@@ -3,18 +3,18 @@ package com.realsanjeev.renttracker.data.local.db
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "tenants")
-data class TenantEntity(
+@Entity(tableName = "payment_records")
+data class PaymentRecordEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val name: String,
-    val propertyName: String,
-    val rentPay: Double,
+    val tenantId: Long,
     val paymentDate: String,
+    val periodCovered: String,
+    val rentAmount: Double,
     val electricityUnitLast: Double,
     val electricityUnitCurrent: Double,
     val electricityRate: Double,
-    val status: String,
-    val moveInDate: String = "",
-    val isAdvancePaid: Boolean = true
+    val electricityAmount: Double,
+    val totalAmount: Double,
+    val note: String = ""
 )

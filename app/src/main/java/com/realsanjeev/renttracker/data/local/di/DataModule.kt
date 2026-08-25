@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
+import com.realsanjeev.renttracker.data.local.db.PaymentRecordDao
 import com.realsanjeev.renttracker.data.local.db.TenantDao
 import com.realsanjeev.renttracker.data.local.db.TenantDatabase
 import dagger.Module
@@ -33,6 +34,10 @@ object DataModule {
     @Provides
     fun provideTenantDao(database: TenantDatabase): TenantDao =
         database.tenantDao()
+
+    @Provides
+    fun providePaymentRecordDao(database: TenantDatabase): PaymentRecordDao =
+        database.paymentRecordDao()
 
     @Provides
     @Singleton

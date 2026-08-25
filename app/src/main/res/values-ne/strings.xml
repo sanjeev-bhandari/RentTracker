@@ -17,14 +17,18 @@
 
     <string name="btn_save">बचत गर्नुहोस्</string>
     <string name="btn_cancel">रद्द गर्नुहोस्</string>
+    <string name="btn_ok">ठीक छ</string>
     <string name="msg_tenant_saved">बहालवाला रेकर्ड सफलतापूर्वक बचत भयो!</string>
     <string name="msg_tenant_deleted">बहालवाला मेटाइयो।</string>
-    <string name="msg_invalid_input">कृपया मान्य नाम र भाडा रकम प्रविष्ट गर्नुहोस्।</string>
+    <string name="msg_invalid_input">कृपया मान्य नाम र भाडा रकम भर्नुहोस्।</string>
 
     <string name="row_notification">सूचनाहरू</string>
     <string name="row_dark_mode">डार्क मोड</string>
     <string name="row_currency">मुद्रा प्रकार</string>
     <string name="row_numeral">अंक प्रदर्शन</string>
+    <string name="row_calendar">पात्रो</string>
+    <string name="calendar_ad">ई.सं. (अंग्रेजी / ग्रेगोरियन)</string>
+    <string name="calendar_bs">वि.सं. (नेपाली / विक्रम संवत्)</string>
     <string name="row_language">भाषा</string>
     <string name="row_rate">पूर्वनिर्धारित बिजुली दर</string>
     <string name="row_due_day">भाडा बुझाउने दिन</string>
@@ -67,5 +71,9 @@
     <string name="units_format">%1$s युनिट</string>
     <string name="msg_clear_data_confirm">यसले सबै बहालवालाहरू हटाउनेछ र सेटिङहरू रिसेट गर्नेछ। यो कार्य उल्टाउन सकिँदैन।</string>
     <string name="msg_notifications_enabled">सूचनाहरू सक्रिय गरियो</string>
-    <string name="msg_record_payment_hint">भुक्तानी रेकर्ड गर्नको लागि सूचीबाट बहालवाला चयन गर्नुहोस्</string>
+    <string name="msg_record_payment_hint">भुक्तानी रेकर्ड गर्नको लागि सूचीबाट बहालवाला छान्नुहोस्</string>
+    <string name="bs_picker_title">वि.सं. मिति छान्नुहोस्</string>
+    <string name="bs_picker_year">वर्ष</string>
+    <string name="bs_picker_month">महिना</string>
+    <string name="bs_picker_day">गते</string>
 </resources>

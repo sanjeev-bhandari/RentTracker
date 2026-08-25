@@ -20,6 +20,9 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     override suspend fun updateNumeralPreference(preference: Int) =
         dataSource.updateNumeralPreference(preference)
 
+    override suspend fun updateCalendarPreference(preference: Int) =
+        dataSource.updateCalendarPreference(preference)
+
     override suspend fun updateDefaultElectricityRate(rate: Double) =
         dataSource.updateDefaultElectricityRate(rate)
 

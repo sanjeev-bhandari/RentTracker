@@ -21,6 +21,7 @@ class UserPreferencesDataSource @Inject constructor(
     private object Keys {
         val CURRENCY_SYMBOL = stringPreferencesKey("currency_symbol")
         val NUMERAL_PREFERENCE = intPreferencesKey("numeral_preference")
+        val CALENDAR_PREFERENCE = intPreferencesKey("calendar_preference")
         val DEFAULT_ELECTRICITY_RATE = doublePreferencesKey("default_electricity_rate")
         val DEFAULT_DUE_DAY = intPreferencesKey("default_due_day")
     }
@@ -29,6 +30,7 @@ class UserPreferencesDataSource @Inject constructor(
         UserPreferences(
             currencySymbol = prefs[Keys.CURRENCY_SYMBOL] ?: "रु. ",
             numeralPreference = prefs[Keys.NUMERAL_PREFERENCE] ?: 0,
+            calendarPreference = prefs[Keys.CALENDAR_PREFERENCE] ?: 0,
             defaultElectricityRate = prefs[Keys.DEFAULT_ELECTRICITY_RATE] ?: 15.0,
             defaultDueDay = prefs[Keys.DEFAULT_DUE_DAY] ?: 1
         )
@@ -40,6 +42,10 @@ class UserPreferencesDataSource @Inject constructor(
 
     suspend fun updateNumeralPreference(preference: Int) {
         dataStore.edit { it[Keys.NUMERAL_PREFERENCE] = preference }
+    }
+
+    suspend fun updateCalendarPreference(preference: Int) {
+        dataStore.edit { it[Keys.CALENDAR_PREFERENCE] = preference }
     }
 
     suspend fun updateDefaultElectricityRate(rate: Double) {

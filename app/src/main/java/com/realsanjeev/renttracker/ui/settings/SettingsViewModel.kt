@@ -31,6 +31,10 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch { preferencesRepository.updateNumeralPreference(pref) }
     }
 
+    fun updateCalendarPreference(pref: Int) {
+        viewModelScope.launch { preferencesRepository.updateCalendarPreference(pref) }
+    }
+
     fun updateElectricityRate(rate: Double) {
         viewModelScope.launch { preferencesRepository.updateDefaultElectricityRate(rate) }
     }

@@ -24,10 +24,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.AddCard
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
@@ -35,39 +34,42 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.realsanjeev.renttracker.R
+import com.realsanjeev.renttracker.domain.model.PaymentRecord
 import com.realsanjeev.renttracker.domain.model.Tenant
 import com.realsanjeev.renttracker.domain.model.TenantStatus
 import com.realsanjeev.renttracker.domain.model.UserPreferences
+import com.realsanjeev.renttracker.ui.recordpayment.RecordPaymentDialog
 import com.realsanjeev.renttracker.ui.theme.Amber40
 import com.realsanjeev.renttracker.ui.theme.Blue40
-import com.realsanjeev.renttracker.ui.theme.Blue50
 import com.realsanjeev.renttracker.ui.theme.Green40
 import com.realsanjeev.renttracker.ui.theme.Red40
 import com.realsanjeev.renttracker.ui.util.Formatting
 import com.realsanjeev.renttracker.ui.util.avatarColorIndex
-import com.realsanjeev.renttracker.ui.util.statusColorIndex
 import com.realsanjeev.renttracker.ui.util.localizedStringId
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.platform.LocalContext
-import com.realsanjeev.renttracker.R
+import com.realsanjeev.renttracker.ui.util.statusColorIndex
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,8 +78,8 @@ fun DashboardScreen(
     onLanguageToggle: () -> Unit,
     onSettingsClick: () -> Unit,
     onAddTenant: () -> Unit,
-    onEditTenant: (Tenant) -> Unit,
-    onRecordPayment: () -> Unit,
+    onTenantClick: (Tenant) -> Unit,
+    onRecordPaymentConfirm: (PaymentRecord, Tenant) -> Unit,
     onSendReminder: () -> Unit,
     onDeleteTenant: (Tenant) -> Unit,
     onSeeAllClick: () -> Unit,
@@ -89,6 +91,8 @@ fun DashboardScreen(
         UserPreferences.NumeralPreference.ENGLISH.value -> false
         else -> currentLanguage == "ne"
     }
+
+    var showRecordPaymentDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -132,25 +136,21 @@ fun DashboardScreen(
 
                 item { SummaryCard(uiState, useNepali) }
 
-                item { ActionChips(onAddTenant, onRecordPayment, onSendReminder) }
+                item {
+                    ActionChips(
+                        onAddTenant = onAddTenant,
+                        onRecordPayment = { showRecordPaymentDialog = true },
+                        onSendReminder = onSendReminder
+                    )
+                }
 
                 item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.nav_tenants),
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Text(
-                            text = stringResource(R.string.see_all),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.clickable { onSeeAllClick() }
-                        )
-                    }
+                    Text(
+                        text = stringResource(R.string.nav_tenants),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 4.dp, bottom = 2.dp)
+                    )
                 }
 
                 if (uiState.tenants.isEmpty()) {
@@ -166,7 +166,7 @@ fun DashboardScreen(
                             tenant = tenant,
                             preferences = uiState.preferences,
                             useNepali = useNepali,
-                            onClick = { onEditTenant(tenant) },
+                            onClick = { onTenantClick(tenant) },
                             onLongClick = { onDeleteTenant(tenant) }
                         )
                     }
@@ -176,26 +176,33 @@ fun DashboardScreen(
             }
         }
     }
+
+    if (showRecordPaymentDialog && uiState.tenants.isNotEmpty()) {
+        RecordPaymentDialog(
+            tenants = uiState.tenants,
+            onDismiss = { showRecordPaymentDialog = false },
+            onConfirmRecord = { record, updatedTenant ->
+                onRecordPaymentConfirm(record, updatedTenant)
+                showRecordPaymentDialog = false
+            }
+        )
+    }
 }
 
 @Composable
 private fun GreetingSection(preferences: UserPreferences, useNepali: Boolean) {
-    Column {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.greeting),
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        }
+    Column(modifier = Modifier.padding(top = 4.dp, bottom = 2.dp)) {
+        Text(
+            text = stringResource(R.string.greeting),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
+        )
         val dayStr = if (useNepali) convertToNepaliDigitsStr("${preferences.defaultDueDay}") else preferences.defaultDueDay.toString()
         val formattedDay = if (useNepali) dayStr else "$dayStr${getOrdinalSuffix(preferences.defaultDueDay, false)}"
         Text(
             text = stringResource(R.string.rent_due_day_format, formattedDay),
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
@@ -208,7 +215,7 @@ private fun SummaryCard(uiState: DashboardUiState, useNepali: Boolean) {
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Box(
             modifier = Modifier
@@ -222,29 +229,42 @@ private fun SummaryCard(uiState: DashboardUiState, useNepali: Boolean) {
                 )
                 .fillMaxWidth()
         ) {
-            Column(modifier = Modifier.padding(20.dp)) {
-                Text(
-                    text = stringResource(R.string.total_revenue),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.8f)
-                )
-                Spacer(modifier = Modifier.height(4.dp))
+            Column(modifier = Modifier.padding(14.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.total_revenue),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Color.White.copy(alpha = 0.85f)
+                    )
+                    Text(
+                        text = "${if (useNepali) convertToNepaliDigitsStr("${summary.progressPercent}") else summary.progressPercent}% Collected",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White.copy(alpha = 0.9f),
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = Formatting.formatAmountLocalized(
                         summary.totalRevenue,
                         uiState.preferences.currencySymbol,
                         useNepali
                     ),
-                    style = MaterialTheme.typography.headlineLarge,
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(8.dp)
-                        .clip(RoundedCornerShape(4.dp))
+                        .height(6.dp)
+                        .clip(RoundedCornerShape(3.dp))
                         .background(Color.White.copy(alpha = 0.2f))
                 ) {
                     val progressValue = (summary.progressPercent / 100f).coerceIn(0f, 1f)
@@ -252,67 +272,43 @@ private fun SummaryCard(uiState: DashboardUiState, useNepali: Boolean) {
                         modifier = Modifier
                             .fillMaxWidth(progressValue)
                             .fillMaxHeight()
-                            .background(Color.White.copy(alpha = 0.9f))
+                            .background(Color.White.copy(alpha = 0.95f))
                     )
                 }
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.White.copy(alpha = 0.9f))
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = stringResource(R.string.collected),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color.White.copy(alpha = 0.7f)
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = Formatting.formatAmountLocalized(summary.collected, uiState.preferences.currencySymbol, useNepali),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = Color.White
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .clip(CircleShape)
+                                .background(Color.White.copy(alpha = 0.9f))
                         )
+                        Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "${if (useNepali) convertToNepaliDigitsStr("${summary.progressPercent}") else summary.progressPercent}%",
+                            text = "Collected: ${Formatting.formatAmountLocalized(summary.collected, uiState.preferences.currencySymbol, useNepali)}",
                             style = MaterialTheme.typography.labelSmall,
-                            color = Color.White.copy(alpha = 0.7f)
+                            color = Color.White.copy(alpha = 0.9f),
+                            fontWeight = FontWeight.Medium
                         )
                     }
-                    Column(horizontalAlignment = Alignment.End) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.White.copy(alpha = 0.4f))
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = stringResource(R.string.pending),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color.White.copy(alpha = 0.7f)
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = Formatting.formatAmountLocalized(summary.pending, uiState.preferences.currencySymbol, useNepali),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = Color.White
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .clip(CircleShape)
+                                .background(Color.White.copy(alpha = 0.4f))
                         )
+                        Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "${if (useNepali) convertToNepaliDigitsStr("${100 - summary.progressPercent}") else (100 - summary.progressPercent)}%",
+                            text = "Pending: ${Formatting.formatAmountLocalized(summary.pending, uiState.preferences.currencySymbol, useNepali)}",
                             style = MaterialTheme.typography.labelSmall,
-                            color = Color.White.copy(alpha = 0.7f)
+                            color = Color.White.copy(alpha = 0.8f),
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
@@ -329,17 +325,17 @@ private fun ActionChips(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         ActionChipItem(
             icon = Icons.Default.Add,
             label = stringResource(R.string.action_add_tenant),
-            containerColor = Blue50,
+            containerColor = Blue40,
             onClick = onAddTenant,
             modifier = Modifier.weight(1f)
         )
         ActionChipItem(
-            icon = Icons.Default.Payments,
+            icon = Icons.Default.AddCard,
             label = stringResource(R.string.action_record),
             containerColor = Green40,
             onClick = onRecordPayment,
@@ -468,13 +464,14 @@ internal fun TenantCard(
 ) {
     val avatarColors = listOf(Blue40, Amber40, Color(0xFF7C3AED), Green40)
     val avatarColor = avatarColors[tenant.avatarColorIndex()]
+    val status = tenant.calculatedStatus
 
     val statusColors = listOf(
         listOf(Green40, Color(0xFFD1FAE5)),
         listOf(Amber40, Color(0xFFFEF3C7)),
         listOf(Red40, Color(0xFFFEE2E2))
     )
-    val statusColorPair = statusColors[tenant.status.statusColorIndex()]
+    val statusColorPair = statusColors[status.statusColorIndex()]
 
     Card(
         modifier = Modifier
@@ -530,7 +527,7 @@ internal fun TenantCard(
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
                         Text(
-                            text = stringResource(tenant.status.localizedStringId()),
+                            text = stringResource(status.localizedStringId()),
                             style = MaterialTheme.typography.labelSmall,
                             color = statusColorPair[0],
                             fontWeight = FontWeight.SemiBold
@@ -549,58 +546,39 @@ internal fun TenantCard(
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Bottom
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = Formatting.formatAmountLocalized(tenant.totalAmount, preferences.currencySymbol, useNepali),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.primary
                     )
-                    Column(horizontalAlignment = Alignment.End) {
-                        if (tenant.paymentDate.isNotBlank()) {
-                            Text(
-                                text = tenant.paymentDate.let {
-                                    if (useNepali) convertToNepaliDigitsStr(it) else it
-                                },
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        if (tenant.electricityUnitsUsed > 0) {
-                            val unitsVal = if (useNepali) convertToNepaliDigitsStr("${tenant.electricityUnitsUsed.toInt()}") else tenant.electricityUnitsUsed.toInt().toString()
-                            Text(
-                                text = stringResource(R.string.units_format, unitsVal),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
+                    Text(
+                        text = Formatting.formatDateDisplay(tenant.paymentDate, preferences.calendarPreference, useNepali),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }
     }
 }
 
-private fun getOrdinalSuffix(day: Int, useNepali: Boolean): String {
-    val suffix = when {
-        day in 11..13 -> "th"
-        day % 10 == 1 -> "st"
-        day % 10 == 2 -> "nd"
-        day % 10 == 3 -> "rd"
+private fun getOrdinalSuffix(n: Int, useNepali: Boolean): String {
+    if (useNepali) return ""
+    if (n in 11..13) return "th"
+    return when (n % 10) {
+        1 -> "st"
+        2 -> "nd"
+        3 -> "rd"
         else -> "th"
     }
-    return if (useNepali) convertToNepaliDigitsStr(suffix) else suffix
 }
 
 private fun convertToNepaliDigitsStr(input: String): String {
-    return buildString {
-        for (c in input) {
-            if (c in '0'..'9') {
-                append((0x0966 + (c - '0')).toChar())
-            } else {
-                append(c)
-            }
-        }
-    }
+    val nepaliDigits = charArrayOf('०', '१', '२', '३', '४', '५', '६', '७', '८', '९')
+    return input.map { ch ->
+        if (ch in '0'..'9') nepaliDigits[ch - '0'] else ch
+    }.joinToString("")
 }
